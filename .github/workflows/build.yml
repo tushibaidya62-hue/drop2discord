@@ -22,7 +22,7 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/gradle"
           for i in 1 2 3 4 5; do
-            if curl -fsSL -o "$RUNNER_TEMP/gradle.zip" https://github.com/gradle/gradle-distributions/releases/download/v8.9.0/gradle-8.9-bin.zip; then
+            if curl -fsSL -o "$RUNNER_TEMP/gradle.zip" https://mirrors.cloud.tencent.com/gradle/gradle-8.9-bin.zip; then
               break
             fi
             echo "Download attempt $i failed, retrying..."
