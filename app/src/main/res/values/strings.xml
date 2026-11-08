@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Drop2Discord</string>
+    <string name="share_chooser_title">Share to Discord</string>
+    <string name="screen_title">Drop2Discord</string>
+    <string name="screen_subtitle">Pick files. Share them to Discord. Send them inside Discord.</string>
+    <string name="pick_files">Pick files</string>
+    <string name="files_count_none">No files picked yet.</string>
+    <string name="files_count">%1$s files picked.</string>
+    <string name="share_all">Share all to Discord</string>
+    <string name="delete_copies">Delete copies</string>
+    <string name="copying">Copying files…</string>
+    <string name="pick_first">Pick at least one file first.</string>
+    <string name="too_many">Too many files. Pick 10 or less.</string>
+    <string name="low_storage">Phone storage is low</string>
+    <string name="copied_and_shared">Files are ready. Pick your channel and tap Send in Discord.</string>
+    <string name="copies_deleted">Copies deleted.</string>
+    <string name="file_missing">File missing</string>
+    <string name="file_name_unknown">Unknown file</string>
+    <string name="no_space_for_delete">Nothing to delete.</string>
+</resources>
