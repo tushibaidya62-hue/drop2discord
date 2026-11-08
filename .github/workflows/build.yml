@@ -19,9 +19,18 @@ jobs:
           distribution: temurin
           java-version: '17'
       - name: Set up Gradle 8.9
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: 8.9
+        run: |
+          mkdir -p "$RUNNER_TEMP/gradle"
+          for i in 1 2 3 4 5; do
+            if curl -fsSL -o "$RUNNER_TEMP/gradle.zip" https://github.com/gradle/gradle-distributions/releases/download/v8.9.0/gradle-8.9-bin.zip; then
+              break
+            fi
+            echo "Download attempt $i failed, retrying..."
+            sleep 10
+          done
+          unzip -q "$RUNNER_TEMP/gradle.zip" -d "$RUNNER_TEMP/gradle"
+          echo "$RUNNER_TEMP/gradle/gradle-8.9/bin" >> "$GITHUB_PATH"
+          gradle --version
       - name: Build debug APK
         run: gradle assembleDebug --stacktrace
       - name: Publish APK
