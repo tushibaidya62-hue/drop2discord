@@ -39,10 +39,6 @@ class MainActivity : ComponentActivity() {
                     ActivityResultContracts.OpenMultipleDocuments()
                 ) { uris: List<Uri> ->
                     if (uris.isEmpty()) return@rememberLauncherForActivityResult
-                    if (uris.size > 10) {
-                        message = getString(R.string.too_many)
-                        return@rememberLauncherForActivityResult
-                    }
                     val picked = ArrayList<SelectedFile>(uris.size)
                     val seen = mutableSetOf<String>()
                     for (uri in uris) {
