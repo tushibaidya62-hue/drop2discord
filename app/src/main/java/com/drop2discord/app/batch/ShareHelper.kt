@@ -9,6 +9,7 @@ import com.drop2discord.app.util.FileUtils
 import com.drop2discord.app.util.SelectedFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileNotFoundException
@@ -69,7 +70,7 @@ object ShareHelper {
         if (copied.isEmpty()) return false
         val authority = context.packageName + ".fileprovider"
         val uris = copied.map { FileProvider.getUriForFile(context, authority, it) }
-        val clip = ClipData(mimeType, arrayOf(mimeType), uris.first())
+        val clip = ClipData(mimeType, arrayOf(mimeType), ClipData.Item(uris.first()))
         for (i in 1 until uris.size) clip.addItem(ClipData.Item(uris[i]))
         val intent = if (copied.size == 1) {
             Intent(Intent.ACTION_SEND).apply {
