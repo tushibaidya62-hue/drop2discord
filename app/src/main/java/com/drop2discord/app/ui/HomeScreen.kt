@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -29,9 +29,12 @@ fun HomeScreen(
     files: List<SelectedFile>,
     onPickFiles: () -> Unit,
     onShareAll: () -> Unit,
+    onNext: () -> Unit,
     onDeleteCopies: () -> Unit,
     isCopying: Boolean,
-    message: String?
+    message: String?,
+    queueActive: Boolean,
+    queueIndex: Int
 ) {
     Column(
         modifier = Modifier
@@ -58,10 +61,20 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(files, key = { it.uri.toString() }) { file ->
+                itemsIndexed(files, key = { _, it -> it.uri.toString() }) { index, file ->
+                    val status = when {
+                        !queueActive && files.isNotEmpty() && queueIndex == 0 -> stringResource(R.string.waiting_file)
+                        index < queueIndex || (!queueActive && queueIndex >= files.size) -> stringResource(R.string.done_file)
+                        index == queueIndex && queueActive -> stringResource(R.string.current_file)
+                        index < queueIndex -> stringResource(R.string.done_file)
+                        else -> stringResource(R.string.waiting_file)
+                    }
                     Row(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(text = file.name, style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                text = if (queueActive) status + " " + file.name else file.name,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
                             Text(
                                 text = Format.bytes(file.size),
                                 style = MaterialTheme.typography.bodyMedium,
@@ -82,10 +95,18 @@ fun HomeScreen(
 
         Button(
             onClick = onShareAll,
-            enabled = files.isNotEmpty() && !isCopying,
+            enabled = files.isNotEmpty() && !isCopying && !queueActive,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = stringResource(R.string.share_all))
+            Text(text = stringResource(R.string.send_one))
+        }
+
+        Button(
+            onClick = onNext,
+            enabled = queueActive && !isCopying,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = stringResource(R.string.send_next))
         }
 
         OutlinedButton(onClick = onDeleteCopies, modifier = Modifier.fillMaxWidth()) {

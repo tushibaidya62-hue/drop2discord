@@ -19,6 +19,7 @@ import com.drop2discord.app.util.SelectedFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 
 class MainActivity : ComponentActivity() {
 
@@ -29,6 +30,9 @@ class MainActivity : ComponentActivity() {
                 var files by remember { mutableStateOf<List<SelectedFile>>(emptyList()) }
                 var isCopying by remember { mutableStateOf(false) }
                 var message by remember { mutableStateOf<String?>(null) }
+                var copiedQueue by remember { mutableStateOf<List<File>>(emptyList()) }
+                var queueIndex by remember { mutableStateOf(0) }
+                var queueActive by remember { mutableStateOf(false) }
                 val scope = rememberCoroutineScope()
 
                 val launcher = rememberLauncherForActivityResult(
@@ -48,6 +52,9 @@ class MainActivity : ComponentActivity() {
                         if (seen.add(key)) picked.add(SelectedFile(uri, name, size))
                     }
                     files = picked
+                    copiedQueue = emptyList()
+                    queueIndex = 0
+                    queueActive = false
                     message = null
                 }
 
@@ -79,20 +86,50 @@ class MainActivity : ComponentActivity() {
                                     ?: getString(R.string.file_missing)
                                 return@launch
                             }
+                            copiedQueue = copied
+                            queueIndex = 0
+                            queueActive = true
                             val mimeType = withContext(Dispatchers.Main) {
-                                ShareHelper.commonMimeType(this@MainActivity, toShare)
+                                ShareHelper.commonMimeType(this@MainActivity, listOf(toShare[0]))
                             }
-                            val shared = ShareHelper.shareFiles(this@MainActivity, copied, mimeType)
+                            val shared = ShareHelper.shareFiles(this@MainActivity, listOf(copied[0]), mimeType)
                             isCopying = false
-                            message = if (shared) getString(R.string.copied_and_shared) else getString(R.string.file_missing)
+                            message = if (shared) {
+                                getString(R.string.queue_status, 1, copied.size)
+                            } else {
+                                queueActive = false
+                                getString(R.string.file_missing)
+                            }
+                        }
+                    },
+                    onNext = {
+                        if (!queueActive || isCopying) return@HomeScreen
+                        val next = queueIndex + 1
+                        if (next >= copiedQueue.size) {
+                            queueActive = false
+                            message = getString(R.string.queue_done)
+                            return@HomeScreen
+                        }
+                        queueIndex = next
+                        val mimeType = ShareHelper.commonMimeType(this, listOf(files[next]))
+                        val shared = ShareHelper.shareFiles(this, listOf(copiedQueue[next]), mimeType)
+                        message = if (shared) {
+                            getString(R.string.queue_status, next + 1, copiedQueue.size)
+                        } else {
+                            getString(R.string.file_missing)
                         }
                     },
                     onDeleteCopies = {
                         val removed = FileUtils.deleteQueue(this)
+                        copiedQueue = emptyList()
+                        queueIndex = 0
+                        queueActive = false
                         message = if (removed) getString(R.string.copies_deleted) else getString(R.string.no_space_for_delete)
                     },
                     isCopying = isCopying,
-                    message = message
+                    message = message,
+                    queueActive = queueActive,
+                    queueIndex = queueIndex
                 )
             }
         }

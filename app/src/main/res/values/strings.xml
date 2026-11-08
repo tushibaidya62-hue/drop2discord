@@ -18,4 +18,11 @@
     <string name="file_missing">File missing</string>
     <string name="file_name_unknown">Unknown file</string>
     <string name="no_space_for_delete">Nothing to delete.</string>
+    <string name="send_one">Send one-by-one to Discord</string>
+    <string name="send_next">Send next file to Discord</string>
+    <string name="queue_status">File %1$s of %2$s ready. Tap Send in Discord, then come back and tap Next.</string>
+    <string name="queue_done">All files sent one-by-one. Done!</string>
+    <string name="current_file">Current:</string>
+    <string name="done_file">Done:</string>
+    <string name="waiting_file">Waiting:</string>
 </resources>
